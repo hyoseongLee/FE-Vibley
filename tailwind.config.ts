@@ -44,6 +44,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Pretendard', 'sans-serif'],
+        shrikhand: ['Shrikhand', 'cursive'],
       },
     },
   },
