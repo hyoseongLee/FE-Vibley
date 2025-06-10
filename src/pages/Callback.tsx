@@ -21,7 +21,7 @@ const Callback = () => {
 
         localStorage.setItem('accessToken', accessToken);
 
-        navigate('/');
+        navigate('/main');
       } catch (err) {
         console.error('로그인 실패:', err);
         alert('로그인에 실패했어요. 다시 시도해주세요!');
