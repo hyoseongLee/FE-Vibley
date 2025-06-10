@@ -1,9 +1,9 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
     './index.html',
-    './src/**/*.{ts,tsx}',  // 타입스크립트 사용 시
+    './src/**/*.{ts,tsx}', // 타입스크립트 사용 시
   ],
   theme: {
     extend: {
@@ -23,8 +23,8 @@ const config: Config = {
         white: '#FFFFFF',
       },
       fontSize: {
-        'logo': ['52px', '1.2'],
-        'title': ['40px', '1.2'],
+        logo: ['32px', '1.2'],
+        title: ['40px', '1.2'],
         '24-bold': ['24px', '1.2'],
         '24-semibold': ['24px', '1.2'],
         '24-medium': ['24px', '1.2'],
@@ -49,6 +49,6 @@ const config: Config = {
     },
   },
   plugins: [],
-}
+};
 
-export default config
+export default config;
