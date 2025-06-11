@@ -14,7 +14,8 @@ const AppRoutes = () => {
 
       <Route element={<Layout />}>
         <Route path='/main' element={<Main />} errorElement={<Error />} />
-        <Route path='/detail' element={<Detail />} errorElement={<Error />} />
+        <Route path='/detail/:type/:id' element={<Detail />} errorElement={<Error />} />
+        
       </Route>
 
       <Route path='*' element={<Error />} />
