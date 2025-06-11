@@ -5,7 +5,7 @@ import { RiUserLine } from 'react-icons/ri';
 
 const Header: React.FC = () => {
   return (
-    <header className='fixed top-0 left-0 w-full flex items-center justify-between px-[60px] py-3 bg-white shadow-sm'>
+    <header className='fixed top-0 left-0 w-full flex items-center justify-between px-[60px] py-3 bg-white shadow-sm z-50'>
       <Link to='/main' className='text-logo font-shrikhand text-black'>
         Vibely
       </Link>
