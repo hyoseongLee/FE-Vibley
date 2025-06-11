@@ -1,17 +1,22 @@
 import axios from './axiosInstance';
 
-export const fetchPlaybackState = () => axios.get('/api/spotify/player');
-export const play = (uris: string[], positionMs?: number) =>
-  axios.put('/api/spotify/player/play', { uris, positionMs });
-export const pause = () => axios.put('/api/spotify/player/pause');
-export const next = () => axios.post('/api/spotify/player/next');
-export const previous = () => axios.post('/api/spotify/player/previous');
-export const seek = (positionMs: number) =>
-  axios.put('/api/spotify/player/seek', { positionMs });
-export const setVolume = (volumePercent: number) =>
-  axios.put('/api/spotify/player/volume', { volumePercent });
-export const addToQueue = (uri: string) =>
-  axios.post('/api/spotify/player/queue', { uri });
+export const spotifyAPI = {
+  fetchPlaybackState: () => axios.get('/api/spotify/player'),
+  play: (uris: string[], positionMs?: number) =>
+  axios.put('/api/spotify/player/play', { uris, positionMs }),
+  pause: () => axios.put('/api/spotify/player/pause'),
+  next: () => axios.post('/api/spotify/player/next'),
+  previous: () => axios.post('/api/spotify/player/previous'),
+  seek: (positionMs: number) =>
+  axios.put('/api/spotify/player/seek', { positionMs }),
+  setVolume: (volumePercent: number) =>
+  axios.put('/api/spotify/player/volume', { volumePercent }),
+  addToQueue: (uri: string) =>
+  axios.post('/api/spotify/player/queue', { uri }),
+  };
+  export function fetchPlaybackState() {
+  throw new Error('Function not implemented.');
+  }
 
 export const fetchUserProfile = () => axios.get('/api/spotify/profile');
 export const getAlbum = (albumId: string) =>
