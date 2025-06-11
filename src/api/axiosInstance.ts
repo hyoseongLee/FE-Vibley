@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-// 🔐 토큰, spotifyId 가져오는 함수
 const getAuthHeaders = () => {
   const accessToken = localStorage.getItem('accessToken');
-  const spotifyId = localStorage.getItem('spotifyId');
-  return { accessToken, spotifyId };
+  return { accessToken };
 };
 
 const axiosInstance = axios.create({
@@ -16,12 +14,9 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const { accessToken, spotifyId } = getAuthHeaders();
+    const { accessToken } = getAuthHeaders();
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    if (spotifyId) {
-      config.headers.spotifyid = spotifyId; // Express는 소문자 key만 인식
     }
     return config;
   },
@@ -36,7 +31,8 @@ axiosInstance.interceptors.response.use(
 
       if (error.response.status === 401) {
         alert('세션이 만료되었어요. 다시 로그인해주세요.');
-        // location.href = '/'; // 자동 리다이렉션 가능
+        localStorage.removeItem('accessToken');
+        location.href = '/';
       }
     }
     return Promise.reject(error);
