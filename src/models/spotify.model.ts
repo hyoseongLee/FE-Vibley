@@ -32,6 +32,7 @@ export interface PlaylistTrackItem {
   linkedFromId: string | null;
   artistNames: string[];
   albumImage: string | null;
+  durationMs: number;
 }
 export interface PlaybackState {
   is_playing: boolean;
