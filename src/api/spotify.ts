@@ -39,3 +39,8 @@ export const unfollowPlaylist = (playlistId: string) =>
 export const getFollowedAlbums = () => axios.get('/api/spotify/followed/albums');
 export const getFollowedPlaylists = () =>
   axios.get('/api/spotify/followed/playlists');
+
+export const getAlbumLikeStatus = (albumId: string) =>
+  axios.get(`/api/spotify/album/${albumId}/status`);
+export const getPlaylistLikeStatus = (playlistId: string) =>
+  axios.get(`/api/spotify/playlist/${playlistId}/status`);
