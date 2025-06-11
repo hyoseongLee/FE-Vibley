@@ -22,15 +22,7 @@ export interface Playlist {
   public: boolean;
   ownerName: string | null;
   totalTracks: number;
-  tracks: PlaylistTrack[];
-}
-export interface PlaylistTrack {
-  id: string;
-  name: string;
-  isPlayable: boolean;
-  previewUrl: string | null;
-  linkedFromId: string | null;
-  artistNames: string[];
+  tracks: PlaylistTrackItem[];
 }
 export interface PlaylistTrackItem {
   id: string;
