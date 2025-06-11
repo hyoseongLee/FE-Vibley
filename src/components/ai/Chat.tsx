@@ -9,13 +9,13 @@ function Chat({ message, bgColor = 'white' }: Props) {
   return (
     <div
       className={clsx(
-        'rounded-[20px] p-4 text-18-regular font-regular leading-relaxed break-words p-[20px]' ,
+        'rounded-[20px] p-4 text-18-regular font-regular leading-relaxed break-words',
         {
           'bg-white': bgColor === 'white',
           'bg-tertiary': bgColor === 'tertiary',
         }
       )}
-      style={{ width: '312px', minHeight: '116px' }}
+      style={{ minHeight: '60px', maxWidth: '312px', minWidth: '50px' }}
     >
       {message}
     </div>
