@@ -204,7 +204,7 @@ export default function PlayerBar() {
           max={dur}
           value={pos}
           onChange={handleSeek}
-          className='h-1 bg-primary rounded-lg appearance-none cursor-pointer flex-1'
+          className='h-1 bg-lightgray rounded-lg appearance-none cursor-pointer flex-1'
           disabled={!currentTrack}
         />
       </div>
