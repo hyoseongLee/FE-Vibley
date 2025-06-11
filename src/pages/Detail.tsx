@@ -6,6 +6,7 @@ import { getAlbum, getPlaylist } from '../api/spotify';
 import { Album, Playlist } from '../models/spotify.model';
 import { usePlayerStore } from '../stores/PlayerStore';
 import PlaylistTrack from '../components/music/PlaylistTrack';
+import AlbumCard from '../components/music/AlbumCard';
 
 const Detail = () => {
   const { type, id } = useParams<{ type: 'album' | 'playlist'; id: string }>();
@@ -48,24 +49,31 @@ const Detail = () => {
 
   if (type === 'album' && album) {
     return (
-      <div className='p-6 max-w-4xl mx-auto'>
-        <div className='mb-6'>
-          <h2 className='text-3xl font-bold'>{album.name}</h2>
-          <p className='text-18-semibold text-gray mt-2'>
-            {album.artists.join(', ')} · {album.releaseDate} ·{' '}
-            {album.totalTracks}곡
-          </p>
+      <div className='flex items-start justify-center gap-60 p-4 '>
+        <div className='mt-60'>
+          <AlbumCard />
         </div>
-        <div className='flex flex-col'>
-          {album.tracks.map((track) => (
-            <AlbumTrack
-              key={track.id}
-              track={track}
-              artistNames={album.artists}
-              albumImage={album.imageUrl ?? ''}
-              isActive={currentTrack?.id === track.id}
-            />
-          ))}
+        <div className='mt-20'>
+          <div className='p-6 max-w-4xl mx-auto'>
+            <div className='mb-6'>
+              <h2 className='text-3xl font-bold'>{album.name}</h2>
+              <p className='text-18-semibold text-gray mt-2'>
+                {album.artists.join(', ')} · {album.releaseDate} ·{' '}
+                {album.totalTracks}곡
+              </p>
+            </div>
+            <div className='flex flex-col'>
+              {album.tracks.map((track) => (
+                <AlbumTrack
+                  key={track.id}
+                  track={track}
+                  artistNames={album.artists}
+                  albumImage={album.imageUrl ?? ''}
+                  isActive={currentTrack?.id === track.id}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -73,22 +81,29 @@ const Detail = () => {
 
   if (type === 'playlist' && playlist) {
     return (
-      <div className='p-6 max-w-4xl mx-auto'>
-        <div className='mb-6'>
-          <h2 className='text-3xl font-bold'>{playlist.name}</h2>
-          <p className='text-18-semibold text-gray mt-2'>
-            {playlist.ownerName ?? 'unknown'} · 총 {playlist.totalTracks}곡
-          </p>
+      <div className='flex items-start justify-center gap-6 p-4 '>
+        <div className=''>
+          <AlbumCard />
         </div>
-        <div className='flex flex-col'>
-          {playlist.tracks.map((track, index) => (
-            <PlaylistTrack
-              key={track.id}
-              track={track}
-              index={index}
-              isActive={currentTrack?.id === track.id}
-            />
-          ))}
+        <div className='mt-20'>
+          <div className='p-6 max-w-4xl mx-auto'>
+            <div className='mb-6'>
+              <h2 className='text-3xl font-bold'>{playlist.name}</h2>
+              <p className='text-18-semibold text-gray mt-2'>
+                {playlist.ownerName ?? 'unknown'} · 총 {playlist.totalTracks}곡
+              </p>
+            </div>
+            <div className='flex flex-col'>
+              {playlist.tracks.map((track, index) => (
+                <PlaylistTrack
+                  key={track.id}
+                  track={track}
+                  index={index}
+                  isActive={currentTrack?.id === track.id}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
