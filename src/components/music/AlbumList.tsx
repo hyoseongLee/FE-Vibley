@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Album from './Album';
 import { getNewReleases, getFollowedAlbums, getFollowedPlaylists } from '../../api/spotify';
+import { useNavigate } from 'react-router-dom';
 
 interface ShowAlbumsProps {
   type: 'new' | 'liked-album' | 'liked-playlist';
@@ -14,6 +15,8 @@ interface AlbumData {
 
 export default function ShowAlbums({ type, title }: ShowAlbumsProps) {
   const [items, setItems] = useState<AlbumData[]>([]);
+
+	const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,13 +47,20 @@ export default function ShowAlbums({ type, title }: ShowAlbumsProps) {
         {items.map((item) =>
           type === 'liked-playlist' ? (
             <img
-              key={item.id}
-              src={item.image}
-              alt="플레이리스트 이미지"
-              className="w-[180px] h-[180px] object-cover rounded-20"
-            />
+							key={item.id}
+							src={item.image}
+							alt="플레이리스트 이미지"
+							onClick={() => navigate(`/detail/playlist/${item.id}`)}
+							className="w-[180px] h-[180px] object-cover rounded-20 cursor-pointer hover:opacity-80"
+						/>
           ) : (
-            <Album key={item.id} albumId={item.id} size={180} />
+            <Album
+							key={item.id}
+							albumId={item.id}
+							size={180}
+							clickable
+							type="album"
+						/>
           )
         )}
       </div>
