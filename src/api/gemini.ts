@@ -4,6 +4,6 @@ import axios from './axiosInstance';
 export const askGeminiEmotion = async (
   prompt: string
 ): Promise<GeminiPlaylistRecommendation> => {
-  const res = await axios.post('/gemini/chat', { prompt });
+  const res = await axios.post('/api/gemini/chat', { prompt });
   return res.data.result;
 };
