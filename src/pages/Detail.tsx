@@ -49,12 +49,14 @@ const Detail = () => {
 
   if (type === 'album' && album) {
     return (
-      <div className='flex items-start justify-center gap-60 p-4 '>
-        <div className='mt-60'>
-          <AlbumCard />
+      <div className='flex px-10 gap-10 min-h-screen'>
+        <div className='w-1/3 relative'>
+          <div className='sticky top-1/2 transform -translate-y-1/2 flex justify-center'>
+            <AlbumCard />
+          </div>
         </div>
-        <div className='mt-20'>
-          <div className='p-6 max-w-4xl mx-auto'>
+        <div className='w-2/3 flex items-center justify-center'>
+          <div className='w-full'>
             <div className='mb-6'>
               <h2 className='text-3xl font-bold'>{album.name}</h2>
               <p className='text-18-semibold text-gray mt-2'>
@@ -81,12 +83,14 @@ const Detail = () => {
 
   if (type === 'playlist' && playlist) {
     return (
-      <div className='flex items-start justify-center gap-6 p-4 '>
-        <div className=''>
-          <AlbumCard />
+      <div className='flex px-10 gap-10 min-h-screen'>
+        <div className='w-1/3 relative'>
+          <div className='sticky top-1/2 transform -translate-y-1/2 flex justify-center'>
+            <AlbumCard />
+          </div>
         </div>
-        <div className='mt-20'>
-          <div className='p-6 max-w-4xl mx-auto'>
+        <div className='w-2/3 flex items-center justify-center mr-10'>
+          <div className='w-full'>
             <div className='mb-6'>
               <h2 className='text-3xl font-bold'>{playlist.name}</h2>
               <p className='text-18-semibold text-gray mt-2'>
