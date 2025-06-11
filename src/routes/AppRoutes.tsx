@@ -4,17 +4,20 @@ import Callback from '../pages/Callback';
 import Main from '../pages/Main';
 import Detail from '../pages/Detail';
 import Layout from '../layouts/Layout';
+import Error from '../components/common/Error';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path='/' element={<Landing />} />
-      <Route path='/callback' element={<Callback />} />
+      <Route path='/' element={<Landing />} errorElement={<Error />} />
+      <Route path='/callback' element={<Callback />} errorElement={<Error />} />
 
       <Route element={<Layout />}>
-        <Route path='/main' element={<Main />} />
-        <Route path='/detail' element={<Detail />} />
+        <Route path='/main' element={<Main />} errorElement={<Error />} />
+        <Route path='/detail' element={<Detail />} errorElement={<Error />} />
       </Route>
+
+      <Route path='*' element={<Error />} />
     </Routes>
   );
 };
