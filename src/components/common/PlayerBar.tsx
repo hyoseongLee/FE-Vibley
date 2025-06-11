@@ -1,6 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePlayerStore } from '../../stores/PlayerStore';
-import { spotifyAPI } from '../../api/spotify';
 import music from '../../assets/music.png';
 import {
   IoPlaySkipBackSharp,
@@ -20,92 +19,162 @@ export default function PlayerBar() {
     duration,
     volume,
     prevVolume,
-    setCurrentTrack,
     setIsPlaying,
     setPosition,
-    setDuration,
     setVolume,
+    setStoreVolume,
     setPrevVolume,
-    togglePlayback,
-    skipToNext,
-    skipToPrevious,
-    seekToPosition,
+    playNextInQueue,
+    playPreviousInQueue,
   } = usePlayerStore();
 
-  const progressUpdateRef = useRef<NodeJS.Timeout | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [player, setPlayer] = useState<any>(null);
+  const progressUpdateRef = useRef<number | null>(null);
 
-  // 플레이어 상태 폴링 (2초마다)
+  const accessToken = localStorage.getItem('accessToken');
+
   useEffect(() => {
-    const fetchPlaybackState = async () => {
-      try {
-        const res = await spotifyAPI.fetchPlaybackState();
-        const data = res.data;
+    if (!accessToken || player) return;
 
-        setCurrentTrack({
-          title: data.item?.name || '',
-          artist: data.item?.artists?.map((a: any) => a.name).join(', ') || '',
-          albumArt: data.item?.album?.images?.[0]?.url || music,
-          uri: data.item?.uri || '',
-          duration: data.item?.duration_ms || 0,
-        });
-        setIsPlaying(data.is_playing);
-        setPosition(data.progress_ms || 0);
-        setDuration(data.item?.duration_ms || 0);
-        setVolume(data.device?.volume_percent ?? 100);
-      } catch (error) {
-        console.error('플레이어 상태 업데이트 실패:', error);
+    const loadSpotifySDK = () => {
+      return new Promise<void>((resolve) => {
+        if ((window as any).Spotify) {
+          resolve();
+          return;
+        }
+
+        (window as any).onSpotifyWebPlaybackSDKReady = () => {
+          resolve();
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://sdk.scdn.co/spotify-player.js';
+        script.async = true;
+        document.body.appendChild(script);
+      });
+    };
+
+    const initPlayer = async () => {
+      await loadSpotifySDK();
+
+      const newPlayer = new (window as any).Spotify.Player({
+        name: 'Vibely Web Player',
+        getOAuthToken: (cb: any) => cb(accessToken),
+        volume: 0.8,
+      });
+
+      newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
+        console.log('✅ SDK Ready:', device_id);
+        setDeviceId(device_id);
+      });
+
+      newPlayer.addListener('initialization_error', (e: { message: string }) =>
+        console.error('❌ 초기화 실패:', e.message)
+      );
+
+      await newPlayer.connect();
+      setPlayer(newPlayer);
+    };
+
+    initPlayer();
+  }, [accessToken, player]);
+
+  const playWithSDK = async () => {
+    if (!accessToken || !deviceId || !currentTrack) return;
+
+    try {
+      await player.resume();
+
+      const res = await fetch(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            uris: [currentTrack.uri],
+          }),
+        }
+      );
+
+      if (res.ok) {
+        console.log('✅ 트랙 재생 요청 성공');
+        setIsPlaying(true);
+      } else {
+        const err = await res.json();
+        console.error('❌ 트랙 재생 실패:', err);
       }
-    };
+    } catch (err) {
+      console.error('❌ playWithSDK 에러:', err);
+    }
+  };
 
-    // 최초 상태 불러오기
-    fetchPlaybackState();
+  const togglePlayback = async () => {
+    if (!player || !accessToken || !deviceId) return;
+    if (!isPlaying) {
+      await playWithSDK();
+    } else {
+      await player.pause();
+      setIsPlaying(false);
+    }
+  };
 
-    // 2초마다 상태 업데이트
-    const interval = setInterval(fetchPlaybackState, 2000);
-
-    return () => {
-      if (interval) clearInterval(interval);
-      if (progressUpdateRef.current) clearInterval(progressUpdateRef.current);
-    };
-  }, [setCurrentTrack, setIsPlaying, setPosition, setDuration, setVolume]);
-
-  // 기본값 처리
-  const defaultAlbumArt = music;
-  const title = currentTrack?.title || '오늘 뭐 듣지?';
-  const artist = currentTrack?.artist || 'AI 추천을 받아보세요';
-  const albumArt = currentTrack?.albumArt || defaultAlbumArt;
-  const pos = currentTrack ? position : 0;
-  const dur = currentTrack ? duration : 100;
-  const vol = typeof volume === 'number' ? volume : 100;
-
-  // 음소거/해제
   const handleMute = async () => {
-    if (vol === 0) {
+    if (volume === 0) {
       await setVolume(prevVolume || 100);
     } else {
-      setPrevVolume(vol);
+      setPrevVolume(volume);
       await setVolume(0);
     }
   };
 
-  // 시크바 조절
   const handleSeek = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPos = Number(e.target.value);
-    await seekToPosition(newPos);
+    if (player) await player.seek(newPos);
+    setPosition(newPos);
   };
 
-  // 볼륨 조절
   const handleVolumeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVol = Number(e.target.value);
-    await setVolume(newVol);
+    if (player) await player.setVolume(newVol / 100);
+    setStoreVolume(newVol);
   };
 
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    progressUpdateRef.current = setInterval(() => {
+      const position = usePlayerStore.getState().position;
+      const duration = usePlayerStore.getState().duration;
+      usePlayerStore
+        .getState()
+        .setPosition(Math.min(position + 1000, duration));
+    }, 1000);
+    return () => {
+      if (progressUpdateRef.current) clearInterval(progressUpdateRef.current);
+    };
+  }, [isPlaying, duration, setPosition]);
+
+  useEffect(() => {
+    if (currentTrack && player && deviceId && accessToken) {
+      playWithSDK();
+    }
+  }, [currentTrack]);
+
+  const title = currentTrack?.title || '오늘 뭐 듣지?';
+  const artist = currentTrack?.artist || 'AI 추천을 받아보세요';
+  const albumArt = currentTrack?.albumArt || music;
+  const pos = currentTrack ? position : 0;
+  const dur = currentTrack ? duration : 100;
+  const vol = typeof volume === 'number' ? volume : 100;
+
   return (
-    <div className='fixed bottom-0 left-0 right-0 w-full h-20 bg-white flex items-center px-6 z-50 gap-4'>
-      {/* 앨범아트 */}
+    <div className='fixed bottom-0 left-0 right-0 w-full h-20 bg-white flex items-center px-6 z-50 gap-8'>
       <img src={albumArt} alt='album' className='w-[47px] h-[45px] rounded' />
 
-      {/* 곡 정보 */}
       <div className='flex flex-col min-w-[200px]'>
         <div className='font-sans text-black text-18-semibold'>{title}</div>
         <div className='text-14-medium font-sans text-lightgray truncate'>
@@ -113,23 +182,21 @@ export default function PlayerBar() {
         </div>
       </div>
 
-      {/* 컨트롤 버튼 */}
-      <div className='flex gap-8 mr-20 ml-auto'>
-        <button onClick={skipToPrevious}>
-          <IoPlaySkipBackSharp color='black' size={32} />
+      <div className='flex gap-6 ml-auto'>
+        <button onClick={playPreviousInQueue}>
+          <IoPlaySkipBackSharp color='black' size={24} />
         </button>
         <button
           onClick={togglePlayback}
           className='w-8 h-8 flex items-center justify-center'
         >
-          {isPlaying ? <IoPauseSharp size={32} /> : <IoPlaySharp size={32} />}
+          {isPlaying ? <IoPauseSharp size={24} /> : <IoPlaySharp size={24} />}
         </button>
-        <button onClick={skipToNext}>
-          <IoPlaySkipForwardSharp size={32} />
+        <button onClick={playNextInQueue}>
+          <IoPlaySkipForwardSharp size={24} />
         </button>
       </div>
 
-      {/* 시크바 */}
       <div className='flex flex-1 items-center rounded-lg gap-2 bg-lightgray w-[480px] h-1'>
         <input
           type='range'
@@ -147,13 +214,12 @@ export default function PlayerBar() {
         </span>
       </div>
 
-      {/* 볼륨 컨트롤 */}
       <div className='flex items-center gap-2'>
         <button onClick={handleMute}>
           {vol === 0 ? (
-            <IoVolumeMuteSharp size={30} />
+            <IoVolumeMuteSharp size={20} />
           ) : (
-            <IoVolumeHighSharp size={30} />
+            <IoVolumeHighSharp size={20} />
           )}
         </button>
         <input
