@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react';
 import { getAlbum } from '../../api/spotify'; 
 import clsx from 'clsx';
+import { useNavigate } from 'react-router-dom';
 
 interface AlbumProps {
   albumId: string;
-  size?: number; // 이걸로 크기 조절해서 쓰세요 기본값은 340임
+  size?: number;
   className?: string;
+  clickable?: boolean;
+  type?: 'album' | 'playlist';
 }
 
-export default function Album({ albumId, size = 340, className }: AlbumProps) {
+export default function Album({ albumId, size = 340, className, clickable = false, type = 'album' }: AlbumProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!albumId) return;
@@ -44,6 +48,12 @@ export default function Album({ albumId, size = 340, className }: AlbumProps) {
     };
   }, [albumId]);
 
+  const handleClick = () => {
+    if (clickable && type && albumId) {
+      navigate(`/detail/${type}/${albumId}`);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -71,7 +81,12 @@ export default function Album({ albumId, size = 340, className }: AlbumProps) {
     <img
       src={imageUrl}
       alt="앨범 이미지"
-      className={clsx('object-cover rounded-20', className)}
+      onClick={handleClick}
+      className={clsx(
+        'object-cover rounded-20',
+        clickable && 'cursor-pointer hover:opacity-80',
+        className
+      )}
       style={{ width: size, height: size }}
     />
   );
