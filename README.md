@@ -1,6 +1,5 @@
-### 🎵 Vibely 프로젝트
+### 🎵 Vibely 
 
-----
 
 ### 📌 프로젝트 개요
 Spotify + Gemini AI 연동 음악 큐레이션 플랫폼
